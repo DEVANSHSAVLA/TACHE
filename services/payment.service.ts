@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import dbConnect from "@/lib/mongodb";
-import razorpay from "@/lib/razorpay";
+import getRazorpay from "@/lib/razorpay";
 import Payment from "@/models/Payment";
 import { NotFoundError, ValidationError } from "@/utils/apiResponse";
 import { DEFAULT_CURRENCY } from "@/utils/constants";
@@ -25,7 +25,7 @@ export class PaymentService {
     }
 
     // Create Razorpay order
-    const razorpayOrder = await razorpay.orders.create({
+    const razorpayOrder = await getRazorpay().orders.create({
       amount: amountInPaise,
       currency: DEFAULT_CURRENCY,
       notes: notes || {},

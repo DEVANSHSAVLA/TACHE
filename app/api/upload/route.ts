@@ -7,7 +7,7 @@ import { successResponse, errorResponse, handleApiError } from "@/utils/apiRespo
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || session.user?.role !== "admin") {
+    if (!session) {
       return errorResponse("Unauthorized", 401);
     }
 

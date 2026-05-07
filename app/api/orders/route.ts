@@ -42,9 +42,9 @@ export async function POST(req: NextRequest) {
       return errorResponse(validation.errors.join(", "), 400);
     }
 
-    // Attach user ID if logged in
+    // Attach user ID if logged in (skip for 'admin' string)
     const session = await getServerSession(authOptions);
-    if (session?.user?.id) {
+    if (session?.user?.id && session.user.id !== "admin") {
       data.userId = session.user.id;
     }
 

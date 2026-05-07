@@ -31,7 +31,8 @@ export default withAuth(
           pathname.startsWith("/api/auth") ||
           pathname.startsWith("/api/artworks") ||
           pathname.startsWith("/api/contact") ||
-          pathname.startsWith("/api/orders") && req.method === "POST"
+          pathname.startsWith("/api/upload") ||
+          (pathname.startsWith("/api/orders") && req.method === "POST")
         ) {
           return true;
         }

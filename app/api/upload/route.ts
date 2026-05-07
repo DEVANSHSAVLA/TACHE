@@ -6,10 +6,6 @@ import { successResponse, errorResponse, handleApiError } from "@/utils/apiRespo
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return errorResponse("Unauthorized", 401);
-    }
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;

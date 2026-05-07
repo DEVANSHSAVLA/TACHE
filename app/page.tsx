@@ -1,24 +1,21 @@
 import Link from "next/link";
 import Image from "next/image";
-import dbConnect from "@/lib/mongodb";
-import Artwork from "@/models/Artwork";
+import { ArtworkService } from "@/services/artwork.service";
 import ArtworkGrid from "@/components/ArtworkGrid";
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
 export default async function Home() {
-  await dbConnect();
-
-  // Fetch featured artworks
-  const artworks = await Artwork.find({}).sort({ createdAt: -1 }).limit(6).lean();
+  // Fetch featured artworks via service layer
+  const artworks = await ArtworkService.getFeatured(6);
 
   // Serialize for client component
-  const serializedArtworks = artworks.map((art: any) => ({
-    _id: art._id.toString(),
-    title: art.title,
-    imageUrl: art.imageUrl,
-    price: art.price,
-    description: art.description,
+  const serializedArtworks = artworks.map((art: Record<string, unknown>) => ({
+    _id: (art._id as object).toString(),
+    title: art.title as string,
+    imageUrl: art.imageUrl as string,
+    price: art.price as number,
+    description: art.description as string,
   }));
 
   return (

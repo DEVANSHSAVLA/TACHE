@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 
 type Mode = "login" | "signup";
 
@@ -15,6 +16,8 @@ export default function LoginForm() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -147,14 +150,24 @@ export default function LoginForm() {
                     <label className="block text-sm font-medium tracking-wide text-gray-700 mb-1">
                         PASSWORD
                     </label>
-                    <input
-                        type="password"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter your password"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-[var(--tache-soft-brown)] focus:border-[var(--tache-soft-brown)]"
-                    />
+                    <div className="relative">
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Enter your password"
+                            className="w-full px-4 py-2 pr-11 border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-[var(--tache-soft-brown)] focus:border-[var(--tache-soft-brown)]"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                            tabIndex={-1}
+                        >
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                    </div>
                 </div>
 
                 {mode === "signup" && (
@@ -162,14 +175,24 @@ export default function LoginForm() {
                         <label className="block text-sm font-medium tracking-wide text-gray-700 mb-1">
                             CONFIRM PASSWORD
                         </label>
-                        <input
-                            type="password"
-                            required
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder="Confirm your password"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-[var(--tache-soft-brown)] focus:border-[var(--tache-soft-brown)]"
-                        />
+                        <div className="relative">
+                            <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                required
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                placeholder="Confirm your password"
+                                className="w-full px-4 py-2 pr-11 border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-[var(--tache-soft-brown)] focus:border-[var(--tache-soft-brown)]"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                tabIndex={-1}
+                            >
+                                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                     </div>
                 )}
 

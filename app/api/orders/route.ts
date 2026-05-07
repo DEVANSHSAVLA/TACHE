@@ -1,39 +1,56 @@
-import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import Order from "@/models/Order";
+import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { OrderService } from "@/services/order.service";
+import {
+  successResponse,
+  errorResponse,
+  handleApiError,
+} from "@/utils/apiResponse";
+import { validateOrderInput } from "@/utils/validation";
 
 export async function GET(req: NextRequest) {
-    try {
-        const session = await getServerSession(authOptions);
-        if (!session || session.user?.role !== "admin") {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+  try {
+    const session = await getServerSession(authOptions);
+    const { searchParams } = new URL(req.url);
+    const userOnly = searchParams.get("user") === "true";
 
-        await dbConnect();
-        const orders = await Order.find({}).sort({ createdAt: -1 });
-        return NextResponse.json(orders);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    // User's own orders
+    if (userOnly && session?.user?.id) {
+      const orders = await OrderService.getByUserId(session.user.id);
+      return successResponse(orders);
     }
+
+    // Admin: all orders
+    if (!session || session.user?.role !== "admin") {
+      return errorResponse("Unauthorized", 401);
+    }
+
+    const orders = await OrderService.getAll();
+    return successResponse(orders);
+  } catch (error) {
+    return handleApiError(error);
+  }
 }
 
 export async function POST(req: NextRequest) {
-    try {
-        await dbConnect();
-        const data = await req.json();
-        const session = await getServerSession(authOptions);
+  try {
+    const data = await req.json();
 
-        if (session) {
-            data.userId = session.user?.id;
-        }
-
-        const order = new Order(data);
-        await order.save();
-
-        return NextResponse.json(order, { status: 201 });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    const validation = validateOrderInput(data);
+    if (!validation.valid) {
+      return errorResponse(validation.errors.join(", "), 400);
     }
+
+    // Attach user ID if logged in
+    const session = await getServerSession(authOptions);
+    if (session?.user?.id) {
+      data.userId = session.user.id;
+    }
+
+    const order = await OrderService.create(data);
+    return successResponse(order, 201);
+  } catch (error) {
+    return handleApiError(error);
+  }
 }

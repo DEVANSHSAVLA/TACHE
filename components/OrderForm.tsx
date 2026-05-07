@@ -44,7 +44,7 @@ function OrderFormComponent() {
                 if (!uploadRes.ok) throw new Error("Image upload failed");
 
                 const uploadData = await uploadRes.json();
-                imageUrl = uploadData.secure_url;
+                imageUrl = uploadData.data?.secure_url || uploadData.secure_url;
             }
 
             const res = await fetch("/api/orders", {
@@ -126,6 +126,7 @@ function OrderFormComponent() {
                             onChange={(e) => setFormData({ ...formData, artworkType: e.target.value })}
                             className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-[var(--tache-soft-brown)] focus:border-[var(--tache-soft-brown)] bg-[var(--tache-cream)]"
                         >
+                            <option value="Custom Request">Custom Request</option>
                             <option value="Existing Artwork">Inquire about existing artwork</option>
                             <option value="Custom Portrait">Custom Portrait</option>
                             <option value="Abstract Piece">Custom Abstract Piece</option>

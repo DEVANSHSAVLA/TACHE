@@ -1,24 +1,33 @@
-import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import Order from "@/models/Order";
+import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { OrderService } from "@/services/order.service";
+import {
+  successResponse,
+  errorResponse,
+  handleApiError,
+} from "@/utils/apiResponse";
+import { isValidObjectId } from "@/utils/validation";
 
-export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-    try {
-        const session = await getServerSession(authOptions);
-        if (!session || session.user?.role !== "admin") {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
-        await dbConnect();
-        const resParams = await params;
-        const data = await req.json();
-        const order = await Order.findByIdAndUpdate(resParams.id, data, { new: true });
-
-        if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
-        return NextResponse.json(order);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role !== "admin") {
+      return errorResponse("Unauthorized", 401);
     }
+
+    const { id } = await params;
+    if (!isValidObjectId(id)) {
+      return errorResponse("Invalid order ID", 400);
+    }
+
+    const data = await req.json();
+    const order = await OrderService.updateStatus(id, data);
+    return successResponse(order);
+  } catch (error) {
+    return handleApiError(error);
+  }
 }

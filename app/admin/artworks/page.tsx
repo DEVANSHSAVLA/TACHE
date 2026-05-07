@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Plus, Trash2 } from "lucide-react";
+import { ARTWORK_CATEGORIES } from "@/utils/constants";
 
 export default function AdminArtworks() {
     const [artworks, setArtworks] = useState([]);
@@ -26,9 +27,9 @@ export default function AdminArtworks() {
 
     const fetchArtworks = async () => {
         try {
-            const res = await fetch("/api/artworks");
+            const res = await fetch("/api/artworks?limit=100");
             const data = await res.json();
-            setArtworks(data);
+            setArtworks(data.success ? data.data.artworks : []);
         } catch (error) {
             console.error(error);
         } finally {
@@ -53,7 +54,7 @@ export default function AdminArtworks() {
                 });
                 const uploadResult = await uploadRes.json();
                 if (!uploadRes.ok) throw new Error(uploadResult.error);
-                imageUrl = uploadResult.secure_url;
+                imageUrl = uploadResult.data?.secure_url || uploadResult.secure_url;
             }
 
             if (!imageUrl) {
@@ -128,10 +129,9 @@ export default function AdminArtworks() {
                         <div>
                             <label className="block text-xs font-semibold tracking-widest text-black mb-2 uppercase">Category</label>
                             <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-sm focus:outline-none focus:border-[var(--tache-soft-brown)]">
-                                <option>Canvas Painting</option>
-                                <option>Watercolor</option>
-                                <option>Abstract Collage</option>
-                                <option>Sketch</option>
+                                {ARTWORK_CATEGORIES.map((cat) => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
                             </select>
                         </div>
                         <div>

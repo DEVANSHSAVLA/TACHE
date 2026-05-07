@@ -1,14 +1,21 @@
 import mongoose, { Schema, model, models } from "mongoose";
 
 const UserSchema = new Schema(
-    {
-        name: { type: String, required: true },
-        email: { type: String, required: true, unique: true },
-        password: { type: String, required: true },
-        role: { type: String, enum: ["admin", "customer"], default: "customer" },
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    role: {
+      type: String,
+      enum: ["admin", "customer"],
+      default: "customer",
     },
-    { timestamps: true }
+  },
+  { timestamps: true }
 );
+
+// Index
+UserSchema.index({ email: 1 });
 
 const User = models.User || model("User", UserSchema);
 export default User;

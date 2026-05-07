@@ -1,45 +1,29 @@
-import { NextRequest, NextResponse } from "next/server";
-import nodemailer from "nodemailer";
+import { NextRequest } from "next/server";
+import { EmailService } from "@/services/email.service";
+import { handleApiError, messageResponse, errorResponse } from "@/utils/apiResponse";
+import { validateContactInput } from "@/utils/validation";
 
 export async function POST(req: NextRequest) {
-    try {
-        const { name, email, message } = await req.json();
+  try {
+    const data = await req.json();
 
-        // Basic validation
-        if (!name || !email || !message) {
-            return NextResponse.json(
-                { error: "Name, email, and message are required." },
-                { status: 400 }
-            );
-        }
-
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: process.env.EMAIL_SERVER_USER,
-                pass: process.env.EMAIL_SERVER_PASSWORD,
-            },
-        });
-
-        const mailOptions = {
-            from: process.env.EMAIL_FROM,
-            to: "aasthajainokok@gmail.com",
-            replyTo: email,
-            subject: `New Contact Form Message from ${name}`,
-            text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
-        };
-
-        await transporter.sendMail(mailOptions);
-
-        return NextResponse.json(
-            { success: true, message: "Email sent successfully!" },
-            { status: 200 }
-        );
-    } catch (error: any) {
-        console.error("Error sending email:", error);
-        return NextResponse.json(
-            { error: "Failed to send email." },
-            { status: 500 }
-        );
+    const validation = validateContactInput(data);
+    if (!validation.valid) {
+      return errorResponse(validation.errors.join(", "), 400);
     }
+
+    const { name, email, message } = data;
+
+    if (!EmailService.isConfigured()) {
+      console.log("[Contact] Email not configured. Message received from:", name, email);
+      console.log("[Contact] Message:", message);
+      return messageResponse("Message received! We'll get back to you soon.");
+    }
+
+    await EmailService.sendContactEmail(name, email, message);
+
+    return messageResponse("Email sent successfully!");
+  } catch (error) {
+    return handleApiError(error);
+  }
 }

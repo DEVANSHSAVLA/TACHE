@@ -47,12 +47,12 @@ export default function Navbar() {
 
                         {session ? (
                             <div className="flex items-center space-x-10">
-                                {(session.user as any)?.role === "admin" && (
+                                {session.user?.role === "admin" && (
                                     <Link href="/admin/artworks" className="text-[13px] tracking-[0.2em] font-medium text-brand-burgundy hover:opacity-70 transition-colors uppercase">
                                         ADMIN
                                     </Link>
                                 )}
-                                {(session.user as any)?.role === "customer" && (
+                                {session.user?.role === "customer" && (
                                     <Link href="/profile" className="text-[13px] tracking-[0.2em] font-medium text-brand-burgundy hover:opacity-70 transition-colors uppercase">
                                         MY ORDERS
                                     </Link>
@@ -127,7 +127,7 @@ export default function Navbar() {
 
                         {session ? (
                             <div className="flex flex-col items-center space-y-8">
-                                {(session.user as any)?.role === "admin" && (
+                                {session.user?.role === "admin" && (
                                     <Link
                                         href="/admin/artworks"
                                         className="text-lg font-bold tracking-[0.2em] text-brand-burgundy"
@@ -136,7 +136,7 @@ export default function Navbar() {
                                         ADMIN PANEL
                                     </Link>
                                 )}
-                                {(session.user as any)?.role === "customer" && (
+                                {session.user?.role === "customer" && (
                                     <Link
                                         href="/profile"
                                         className="text-lg font-bold tracking-[0.2em] text-brand-burgundy"

@@ -59,7 +59,7 @@ export default function UploadArtworkForm({ onClose }: { onClose: () => void }) 
                     description,
                     price: Number(price),
                     category,
-                    imageUrl: uploadData.secure_url,
+                    imageUrl: uploadData.data?.secure_url || uploadData.secure_url,
                 }),
             });
 

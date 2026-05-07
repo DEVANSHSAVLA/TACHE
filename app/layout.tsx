@@ -1,4 +1,5 @@
 import { Asul, Playfair_Display } from "next/font/google";
+import { Metadata, Viewport } from "next";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import Navbar from "@/components/Navbar";

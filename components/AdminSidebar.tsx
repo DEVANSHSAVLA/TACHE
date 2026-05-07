@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Image as ImageIcon, ShoppingBag, LogOut } from "lucide-react";
+import { LayoutDashboard, Image as ImageIcon, ShoppingBag, CreditCard, LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 export default function AdminSidebar() {
@@ -12,6 +12,7 @@ export default function AdminSidebar() {
         { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
         { name: "Artworks", href: "/admin/artworks", icon: ImageIcon },
         { name: "Orders", href: "/admin/orders", icon: ShoppingBag },
+        { name: "Payments", href: "/admin/payments", icon: CreditCard },
     ];
 
     return (

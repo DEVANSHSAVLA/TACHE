@@ -6,6 +6,8 @@
   --brand-burgundy: #8B1D1D;
   --brand-gold: #D4AF37;
   --tache-beige: #F9F7F5;
+  --tache-cream: #FDFBF7;
+  --tache-soft-brown: #A67C52;
   --tache-accent: #f0f0f0;
 
   /* Glassmorphism */
@@ -60,7 +62,7 @@ body::before {
   background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
   opacity: 0.08;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 1;
 }
 
 /* Better mobile tap targets */
@@ -162,4 +164,15 @@ main {
 
 .parallax-text:hover {
   transform: translateY(-5px) scale(1.01);
+}
+
+/* Button gradient for upload form */
+.btn-gradient {
+  background: linear-gradient(135deg, var(--brand-burgundy) 0%, #6B1515 100%);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.btn-gradient:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }

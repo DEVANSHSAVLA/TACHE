@@ -1,34 +1,27 @@
-import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { NextRequest } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { UploadService } from "@/services/upload.service";
+import { successResponse, errorResponse, handleApiError } from "@/utils/apiResponse";
 
 export async function POST(req: NextRequest) {
-    try {
-        const formData = await req.formData();
-        const file = formData.get("file") as File | null;
-
-        if (!file) {
-            return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
-        }
-
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-
-        // Create uploads directory if it doesn't exist
-        const uploadDir = path.join(process.cwd(), "public", "uploads");
-        await mkdir(uploadDir, { recursive: true });
-
-        // Generate unique filename
-        const uniqueName = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
-        const filePath = path.join(uploadDir, uniqueName);
-
-        await writeFile(filePath, buffer);
-
-        // Return the public URL
-        const imageUrl = `/uploads/${uniqueName}`;
-
-        return NextResponse.json({ secure_url: imageUrl }, { status: 200 });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role !== "admin") {
+      return errorResponse("Unauthorized", 401);
     }
+
+    const formData = await req.formData();
+    const file = formData.get("file") as File | null;
+
+    if (!file) {
+      return errorResponse("No file uploaded", 400);
+    }
+
+    const imageUrl = await UploadService.uploadImage(file);
+
+    return successResponse({ secure_url: imageUrl });
+  } catch (error) {
+    return handleApiError(error);
+  }
 }

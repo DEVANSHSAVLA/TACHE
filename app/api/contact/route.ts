@@ -3,6 +3,7 @@ import { handleApiError, messageResponse, errorResponse, successResponse } from 
 import { validateContactInput } from "@/utils/validation";
 import dbConnect from "@/lib/mongodb";
 import Message from "@/models/Message";
+import { EmailService } from "@/services/email.service";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -42,8 +43,20 @@ export async function POST(req: NextRequest) {
     });
     
     await newMessage.save();
-
     console.log(`[Contact] New message saved to database from: ${name} (${email})`);
+
+    // Also attempt to send email, but don't fail the request if it fails
+    try {
+      if (EmailService.isConfigured()) {
+        await EmailService.sendContactEmail(name, email, message);
+        console.log(`[Contact] Email notification sent successfully for ${name}`);
+      } else {
+        console.log(`[Contact] Email not configured. Skipping email notification.`);
+      }
+    } catch (emailError) {
+      console.error("[Contact] Failed to send email notification, but message was saved:", emailError);
+      // We don't throw here because the message was already saved to MongoDB successfully
+    }
 
     return messageResponse("Message received successfully! We will get back to you soon.");
   } catch (error) {
@@ -51,5 +64,6 @@ export async function POST(req: NextRequest) {
     return handleApiError(error);
   }
 }
+
 
 

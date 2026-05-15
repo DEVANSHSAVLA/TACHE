@@ -19,7 +19,10 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            "Accept": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Origin": "https://tache-art.vercel.app",
+            "Referer": "https://tache-art.vercel.app/contact"
         },
         body: JSON.stringify({
             name,
@@ -30,7 +33,14 @@ export async function POST(req: NextRequest) {
         }),
     });
 
-    const result = await response.json();
+    const responseText = await response.text();
+    let result;
+    try {
+        result = JSON.parse(responseText);
+    } catch (e) {
+        console.error("FormSubmit returned non-JSON:", responseText);
+        return errorResponse("FormSubmit returned an unexpected response. Please check Vercel logs.", 500);
+    }
 
     if (response.ok && result.success === "true") {
         return messageResponse("Email sent successfully!");
@@ -38,6 +48,7 @@ export async function POST(req: NextRequest) {
         return errorResponse(result.message || "Failed to send email", 500);
     }
   } catch (error) {
+    console.error("Fetch error:", error);
     return handleApiError(error);
   }
 }

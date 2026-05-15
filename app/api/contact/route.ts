@@ -1,8 +1,25 @@
 import { NextRequest } from "next/server";
-import { handleApiError, messageResponse, errorResponse } from "@/utils/apiResponse";
+import { handleApiError, messageResponse, errorResponse, successResponse } from "@/utils/apiResponse";
 import { validateContactInput } from "@/utils/validation";
 import dbConnect from "@/lib/mongodb";
 import Message from "@/models/Message";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+
+export async function GET(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role !== "admin") {
+      return errorResponse("Unauthorized", 401);
+    }
+
+    await dbConnect();
+    const messages = await Message.find({}).sort({ createdAt: -1 }).lean();
+    return successResponse(messages);
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,4 +51,5 @@ export async function POST(req: NextRequest) {
     return handleApiError(error);
   }
 }
+
 

@@ -23,24 +23,21 @@ export default function ContactPage() {
         setError("");
 
         try {
-            const response = await fetch("https://formsubmit.co/ajax/aasthajainokok@gmail.com", {
+            const response = await fetch("/api/contact", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Accept": "application/json"
                 },
                 body: JSON.stringify({
                     name: formData.name,
                     email: formData.email,
                     message: formData.message,
-                    _subject: `New Contact Form Message from ${formData.name}`,
-                    _template: "table"
                 }),
             });
 
             const data = await response.json();
 
-            if (response.ok && data.success === "true") {
+            if (response.ok) {
                 setSubmitted(true);
             } else {
                 setError(data.message || "Something went wrong. Please try again.");

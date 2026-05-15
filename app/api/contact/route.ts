@@ -14,16 +14,31 @@ export async function POST(req: NextRequest) {
 
     const { name, email, message } = data;
 
-    if (!EmailService.isConfigured()) {
-      console.log("[Contact] Email not configured. Message received from:", name, email);
-      console.log("[Contact] Message:", message);
-      return messageResponse("Message received! We'll get back to you soon.");
+    // Send to FormSubmit via server-side fetch to bypass CORS
+    const response = await fetch("https://formsubmit.co/ajax/aasthajainokok@gmail.com", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        body: JSON.stringify({
+            name,
+            email,
+            message,
+            _subject: `New Contact Form Message from ${name}`,
+            _template: "table"
+        }),
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success === "true") {
+        return messageResponse("Email sent successfully!");
+    } else {
+        return errorResponse(result.message || "Failed to send email", 500);
     }
-
-    await EmailService.sendContactEmail(name, email, message);
-
-    return messageResponse("Email sent successfully!");
   } catch (error) {
     return handleApiError(error);
   }
 }
+
